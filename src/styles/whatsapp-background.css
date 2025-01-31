@@ -1,0 +1,38 @@
+.whatsapp-chat-bg {
+  position: relative;
+  background-color: #efeae2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='100' viewBox='0 0 600 100'%3E%3Cg stroke='%23D5D5D5' stroke-width='0' stroke-miterlimit='10' %3E%3Ccircle fill='%23D5D5D5' cx='0' cy='50' r='3'/%3E%3Ccircle fill='%23D5D5D5' cx='100' cy='50' r='3'/%3E%3Ccircle fill='%23D5D5D5' cx='200' cy='50' r='3'/%3E%3Ccircle fill='%23D5D5D5' cx='300' cy='50' r='3'/%3E%3Ccircle fill='%23D5D5D5' cx='400' cy='50' r='3'/%3E%3Ccircle fill='%23D5D5D5' cx='500' cy='50' r='3'/%3E%3Ccircle fill='%23D5D5D5' cx='600' cy='50' r='3'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  opacity: 0.5;
+}
+
+.whatsapp-chat-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.whatsapp-chat-bg.dark {
+  background-color: #0b141a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='100' viewBox='0 0 600 100'%3E%3Cg stroke='%23262D31' stroke-width='0' stroke-miterlimit='10' %3E%3Ccircle fill='%23262D31' cx='0' cy='50' r='3'/%3E%3Ccircle fill='%23262D31' cx='100' cy='50' r='3'/%3E%3Ccircle fill='%23262D31' cx='200' cy='50' r='3'/%3E%3Ccircle fill='%23262D31' cx='300' cy='50' r='3'/%3E%3Ccircle fill='%23262D31' cx='400' cy='50' r='3'/%3E%3Ccircle fill='%23262D31' cx='500' cy='50' r='3'/%3E%3Ccircle fill='%23262D31' cx='600' cy='50' r='3'/%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.06;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 600px) {
+  .chat-list {
+    width: 100%;
+  }
+
+  .chat-window {
+    width: 100%;
+  }
+
+  .message-bubble {
+    max-width: 85%;
+  }
+}
