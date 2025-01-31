@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Container, Typography, Paper } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
+import axios from 'axios';
 
 const LoginPage = () => {
     const [instanceId, setInstanceId] = useState('');
@@ -20,18 +22,12 @@ const LoginPage = () => {
         }
 
         try {
-            const response = await fetch(`/waInstance${instanceId}/getSettings/${apiKey}`);
-            const data = await response.json();
-
-            if (!response.ok || !data) {
-                throw new Error('Invalid credentials');
-            }
-
+            // Сохраняем учетные данные без проверки
             login(instanceId.trim(), apiKey.trim());
             navigate('/');
         } catch (err) {
             console.error('Login error:', err);
-            setError('Failed to validate credentials. Please check your Instance ID and API Key.');
+            setError('Failed to save credentials');
         }
     };
 
@@ -103,30 +99,26 @@ const LoginPage = () => {
                             type="submit"
                             fullWidth
                             variant="contained"
-                            sx={{ 
-                                mt: 3, 
-                                mb: 2,
-                                height: 48
-                            }}
+                            sx={{ mt: 3, mb: 2 }}
                         >
-                            LOGIN
+                            Login
                         </Button>
-                    </form>
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 3, textAlign: 'center' }}
-                    >
-                        To get your Instance ID and API Key, visit{' '}
-                        <a
-                            href="https://green-api.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: 'primary.main' }}
+                        <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            align="center"
                         >
-                            Green API
-                        </a>
-                    </Typography>
+                            Get your credentials at{' '}
+                            <a 
+                                href="https://green-api.com/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: 'inherit' }}
+                            >
+                                Green API
+                            </a>
+                        </Typography>
+                    </form>
                 </Paper>
             </Box>
         </Container>
