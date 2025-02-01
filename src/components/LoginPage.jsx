@@ -2,32 +2,47 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Container, Typography, Paper } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../config';
-import axios from 'axios';
+import { whatsappApi } from '../api/whatsappApi';
 
 const LoginPage = () => {
     const [instanceId, setInstanceId] = useState('');
     const [apiKey, setApiKey] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
         if (!instanceId.trim() || !apiKey.trim()) {
             setError('Both fields are required');
+            setLoading(false);
             return;
         }
 
         try {
-            // Сохраняем учетные данные без проверки
+            // Пробуем отправить тестовое сообщение для проверки API
+            const result = await whatsappApi.sendMessage(
+                instanceId.trim(),
+                apiKey.trim(),
+                "777777777777", // Тестовый номер
+                "test" // Тестовое сообщение
+            );
+
+            if (result.success === false) {
+                throw new Error('API validation failed');
+            }
+
             login(instanceId.trim(), apiKey.trim());
             navigate('/');
         } catch (err) {
             console.error('Login error:', err);
-            setError('Failed to save credentials');
+            setError('Failed to validate API credentials. Please check your Instance ID and API Key.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -70,6 +85,7 @@ const LoginPage = () => {
                                 setInstanceId(e.target.value);
                                 setError('');
                             }}
+                            disabled={loading}
                             error={!!error && !instanceId.trim()}
                             helperText={error && !instanceId.trim() ? 'Instance ID is required' : ''}
                         />
@@ -83,6 +99,7 @@ const LoginPage = () => {
                                 setApiKey(e.target.value);
                                 setError('');
                             }}
+                            disabled={loading}
                             error={!!error && !apiKey.trim()}
                             helperText={error && !apiKey.trim() ? 'API Key is required' : ''}
                         />
@@ -100,8 +117,9 @@ const LoginPage = () => {
                             fullWidth
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
+                            disabled={loading}
                         >
-                            Login
+                            {loading ? 'Validating...' : 'Login'}
                         </Button>
                         <Typography 
                             variant="body2" 
