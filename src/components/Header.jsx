@@ -1,55 +1,71 @@
 import React, { useState } from 'react';
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Box
-} from '@mui/material';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsIcon from '@mui/icons-material/Settings';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem } from '@mui/material';
+import { Menu as MenuIcon } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
-import { useColorMode } from '../contexts/ThemeContext';
-import { useNavigate } from 'react-router-dom';
 import Settings from './Settings';
 
-const Header = ({ title }) => {
-  const { logout } = useAuth();
-  const { mode, toggleColorMode } = useColorMode();
-  const navigate = useNavigate();
+const Header = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { logout } = useAuth();
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSettingsClick = () => {
+    handleClose();
+    setSettingsOpen(true);
+  };
 
   const handleLogout = () => {
+    handleClose();
     logout();
   };
 
   return (
     <>
-      <AppBar position="static" color="inherit" elevation={0}>
+      <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {title}
+            WhatsApp Web
           </Typography>
-          <Box>
-            <IconButton onClick={() => setSettingsOpen(true)} color="inherit">
-              <SettingsIcon />
-            </IconButton>
-            <IconButton onClick={toggleColorMode} color="inherit">
-              {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-            </IconButton>
-            <IconButton onClick={handleLogout} color="inherit">
-              <LogoutIcon />
-            </IconButton>
-          </Box>
+          <IconButton
+            size="large"
+            edge="end"
+            color="inherit"
+            aria-label="menu"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenu}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={handleSettingsClick}>Settings</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
-
-      <Settings
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-      />
+      <Settings open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );
 };
