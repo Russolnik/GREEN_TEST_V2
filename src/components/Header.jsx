@@ -23,7 +23,6 @@ const Header = ({ title }) => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
   };
 
   return (

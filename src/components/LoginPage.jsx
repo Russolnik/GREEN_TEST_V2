@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Container, Typography, Paper } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { whatsappApi } from '../api/whatsappApi';
 
 const LoginPage = () => {
@@ -10,7 +9,6 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,7 +35,6 @@ const LoginPage = () => {
             }
 
             login(instanceId.trim(), apiKey.trim());
-            navigate('/');
         } catch (err) {
             console.error('Login error:', err);
             setError('Failed to validate API credentials. Please check your Instance ID and API Key.');
@@ -76,6 +73,7 @@ const LoginPage = () => {
                     </Typography>
                     <form onSubmit={handleSubmit}>
                         <TextField
+                            autoFocus
                             margin="normal"
                             required
                             fullWidth
