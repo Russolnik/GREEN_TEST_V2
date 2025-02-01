@@ -11,54 +11,31 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
-import { whatsappApi } from '../api/whatsappApi';
 
 const Settings = ({ open, onClose }) => {
   const { credentials, updateCredentials } = useAuth();
   const [instanceId, setInstanceId] = useState(credentials?.instanceId || '');
   const [apiKey, setApiKey] = useState(credentials?.apiKey || '');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const validateInputs = () => {
-    if (!instanceId.trim()) {
-      setError('Пожалуйста, введите Instance ID');
-      return false;
-    }
-    if (!apiKey.trim()) {
-      setError('Пожалуйста, введите API Key');
-      return false;
-    }
-    return true;
-  };
-
-  const handleSave = async () => {
-    setError('');
-    setSuccess(false);
-
-    if (!validateInputs()) {
+  const handleSave = () => {
+    if (!instanceId.trim() || !apiKey.trim()) {
       return;
     }
 
     setLoading(true);
-    try {
-      await whatsappApi.checkAuth(instanceId.trim(), apiKey.trim());
-      updateCredentials(instanceId.trim(), apiKey.trim());
-      setSuccess(true);
-      setTimeout(() => {
-        onClose();
-      }, 1500);
-    } catch (err) {
-      setError(err.message || 'Ошибка проверки учетных данных');
-    } finally {
+    updateCredentials(instanceId.trim(), apiKey.trim());
+    setSuccess(true);
+    
+    setTimeout(() => {
       setLoading(false);
-    }
+      onClose();
+    }, 1000);
   };
 
   const handleClose = () => {
     if (!loading) {
-      setError('');
       setSuccess(false);
       onClose();
     }
@@ -71,14 +48,9 @@ const Settings = ({ open, onClose }) => {
       maxWidth="sm"
       fullWidth
     >
-      <DialogTitle>Настройки API</DialogTitle>
+      <DialogTitle>Настройки Green API</DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
           {success && (
             <Alert severity="success" sx={{ mb: 2 }}>
               Настройки успешно сохранены
@@ -92,8 +64,7 @@ const Settings = ({ open, onClose }) => {
             value={instanceId}
             onChange={(e) => setInstanceId(e.target.value)}
             disabled={loading}
-            error={!!error && !instanceId}
-            helperText={!!error && !instanceId ? 'Обязательное поле' : ''}
+            required
           />
           <TextField
             margin="dense"
@@ -102,8 +73,7 @@ const Settings = ({ open, onClose }) => {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             disabled={loading}
-            error={!!error && !apiKey}
-            helperText={!!error && !apiKey ? 'Обязательное поле' : ''}
+            required
           />
           <Box sx={{ mt: 2, color: 'text.secondary', fontSize: '0.875rem' }}>
             Получите учетные данные в{' '}
@@ -125,7 +95,7 @@ const Settings = ({ open, onClose }) => {
         <Button 
           onClick={handleSave} 
           variant="contained" 
-          disabled={loading || (!instanceId && !apiKey)}
+          disabled={loading || !instanceId.trim() || !apiKey.trim()}
         >
           {loading ? (
             <CircularProgress size={24} color="inherit" />

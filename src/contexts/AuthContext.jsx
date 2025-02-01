@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
@@ -7,26 +7,59 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [credentials, setCredentials] = useState(() => {
-    const saved = localStorage.getItem('whatsapp-credentials');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [credentials, setCredentials] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Загружаем учетные данные при инициализации
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('whatsapp-credentials');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.instanceId && parsed?.apiKey) {
+          setCredentials(parsed);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading credentials:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const login = (instanceId, apiKey) => {
-    const newCredentials = { instanceId, apiKey };
-    setCredentials(newCredentials);
-    localStorage.setItem('whatsapp-credentials', JSON.stringify(newCredentials));
+    try {
+      const newCredentials = { instanceId, apiKey };
+      setCredentials(newCredentials);
+      localStorage.setItem('whatsapp-credentials', JSON.stringify(newCredentials));
+      return true;
+    } catch (error) {
+      console.error('Error saving credentials:', error);
+      return false;
+    }
   };
 
   const updateCredentials = (instanceId, apiKey) => {
-    const newCredentials = { instanceId, apiKey };
-    setCredentials(newCredentials);
-    localStorage.setItem('whatsapp-credentials', JSON.stringify(newCredentials));
+    try {
+      const newCredentials = { instanceId, apiKey };
+      setCredentials(newCredentials);
+      localStorage.setItem('whatsapp-credentials', JSON.stringify(newCredentials));
+      return true;
+    } catch (error) {
+      console.error('Error updating credentials:', error);
+      return false;
+    }
   };
 
   const logout = () => {
-    setCredentials(null);
-    localStorage.removeItem('whatsapp-credentials');
+    try {
+      setCredentials(null);
+      localStorage.removeItem('whatsapp-credentials');
+      return true;
+    } catch (error) {
+      console.error('Error during logout:', error);
+      return false;
+    }
   };
 
   const value = {
@@ -34,8 +67,14 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateCredentials,
-    isAuthenticated: !!credentials
+    isAuthenticated: !!credentials,
+    isLoading: loading
   };
+
+  // Показываем загрузку, пока проверяем авторизацию
+  if (loading) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={value}>

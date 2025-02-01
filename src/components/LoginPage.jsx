@@ -2,36 +2,47 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Container, Typography, Paper } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { whatsappApi } from '../api/whatsappApi';
 
 const LoginPage = () => {
     const [instanceId, setInstanceId] = useState('');
     const [apiKey, setApiKey] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
         if (!instanceId.trim() || !apiKey.trim()) {
             setError('Both fields are required');
+            setLoading(false);
             return;
         }
 
         try {
-            const response = await fetch(`/waInstance${instanceId}/getSettings/${apiKey}`);
-            const data = await response.json();
+            // Пробуем отправить тестовое сообщение для проверки API
+            const result = await whatsappApi.sendMessage(
+                instanceId.trim(),
+                apiKey.trim(),
+                "777777777777", // Тестовый номер
+                "test" // Тестовое сообщение
+            );
 
-            if (!response.ok || !data) {
-                throw new Error('Invalid credentials');
+            if (result.success === false) {
+                throw new Error('API validation failed');
             }
 
             login(instanceId.trim(), apiKey.trim());
             navigate('/');
         } catch (err) {
             console.error('Login error:', err);
-            setError('Failed to validate credentials. Please check your Instance ID and API Key.');
+            setError('Failed to validate API credentials. Please check your Instance ID and API Key.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -74,6 +85,7 @@ const LoginPage = () => {
                                 setInstanceId(e.target.value);
                                 setError('');
                             }}
+                            disabled={loading}
                             error={!!error && !instanceId.trim()}
                             helperText={error && !instanceId.trim() ? 'Instance ID is required' : ''}
                         />
@@ -87,6 +99,7 @@ const LoginPage = () => {
                                 setApiKey(e.target.value);
                                 setError('');
                             }}
+                            disabled={loading}
                             error={!!error && !apiKey.trim()}
                             helperText={error && !apiKey.trim() ? 'API Key is required' : ''}
                         />
@@ -103,30 +116,27 @@ const LoginPage = () => {
                             type="submit"
                             fullWidth
                             variant="contained"
-                            sx={{ 
-                                mt: 3, 
-                                mb: 2,
-                                height: 48
-                            }}
+                            sx={{ mt: 3, mb: 2 }}
+                            disabled={loading}
                         >
-                            LOGIN
+                            {loading ? 'Validating...' : 'Login'}
                         </Button>
-                    </form>
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 3, textAlign: 'center' }}
-                    >
-                        To get your Instance ID and API Key, visit{' '}
-                        <a
-                            href="https://green-api.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: 'primary.main' }}
+                        <Typography 
+                            variant="body2" 
+                            color="text.secondary"
+                            align="center"
                         >
-                            Green API
-                        </a>
-                    </Typography>
+                            Get your credentials at{' '}
+                            <a 
+                                href="https://green-api.com/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: 'inherit' }}
+                            >
+                                Green API
+                            </a>
+                        </Typography>
+                    </form>
                 </Paper>
             </Box>
         </Container>

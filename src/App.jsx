@@ -8,7 +8,24 @@ import { CssBaseline } from '@mui/material';
 
 const PrivateRoute = ({ children }) => {
     const { credentials } = useAuth();
-    return credentials?.instanceId && credentials?.apiKey ? children : <Navigate to="/login" />;
+    
+    // Проверяем наличие учетных данных
+    if (!credentials?.instanceId || !credentials?.apiKey) {
+        return <Navigate to="/login" replace />;
+    }
+    
+    return children;
+};
+
+const PublicRoute = ({ children }) => {
+    const { credentials } = useAuth();
+    
+    // Если пользователь уже авторизован, перенаправляем на главную
+    if (credentials?.instanceId && credentials?.apiKey) {
+        return <Navigate to="/" replace />;
+    }
+    
+    return children;
 };
 
 const App = () => {
@@ -18,7 +35,17 @@ const App = () => {
                 <CssBaseline />
                 <Router>
                     <Routes>
-                        <Route path="/login" element={<LoginPage />} />
+                        {/* Публичные маршруты */}
+                        <Route 
+                            path="/login" 
+                            element={
+                                <PublicRoute>
+                                    <LoginPage />
+                                </PublicRoute>
+                            } 
+                        />
+                        
+                        {/* Защищенные маршруты */}
                         <Route
                             path="/"
                             element={
@@ -26,6 +53,12 @@ const App = () => {
                                     <ChatPage />
                                 </PrivateRoute>
                             }
+                        />
+                        
+                        {/* Обработка всех остальных маршрутов */}
+                        <Route 
+                            path="*" 
+                            element={<Navigate to="/" replace />} 
                         />
                     </Routes>
                 </Router>
