@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Box } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useAuth } from '../contexts/AuthContext';
+import { useColorMode } from '../contexts/ThemeContext';
 import Settings from './Settings';
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { logout } = useAuth();
+  const { mode, toggleColorMode } = useColorMode();
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -34,17 +38,22 @@ const Header = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             WhatsApp Web
           </Typography>
-          <IconButton
-            size="large"
-            edge="end"
-            color="inherit"
-            aria-label="menu"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenu}
-          >
-            <MenuIcon />
-          </IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={toggleColorMode} color="inherit" sx={{ mr: 1 }}>
+              {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            <IconButton
+              size="large"
+              edge="end"
+              color="inherit"
+              aria-label="menu"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleMenu}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Box>
           <Menu
             id="menu-appbar"
             anchorEl={anchorEl}
